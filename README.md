@@ -16,4 +16,4 @@
 
 ---------
 
-Detailed documentation can be found at https://bioinfouninascala.github.io/epistats.
+Detailed documentation can be found at [https://bioinfouninascala.github.io/epistats](https://github.com/BioinfoUninaScala/epistats).

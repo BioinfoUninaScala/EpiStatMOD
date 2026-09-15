@@ -150,7 +150,6 @@ get_cPos=function(rseq, mode, strand, bisu.Thresh)
     }else{
       if (mode == "CG")
       {
-        #sulle cpg
         cNotMode <- Biostrings::matchPattern("G", rseq)@ranges@start
         cNotMode= cNotMode[!cNotMode %in% cMode]
       } else {

@@ -51,7 +51,6 @@ epiAnalysis= function(align,
                       retain.reads = FALSE,
                       get.cPos=FALSE)
 {
-  ###controllo sui parametri
   if((!mode=="CG") & (stranded == FALSE))
   {
     print(paste("unstranded mode not supported for",mode, "mode",sep=" "))
@@ -84,9 +83,6 @@ epiAnalysis= function(align,
     intervals <- Mapi %>% purrr::map_df(~ .$intervals)
     epi <- Mapi %>% purrr::map_df(~ .$epi)
     log <- Mapi %>% purrr::map_df(~ .$log)
-    #### Costruisce i dataframe e li scrive nei rispettivi file
-    #out=do.call(Mapi, c(rbind, out))
-    #setta i file e i nomi di colonna
     
     bedFile=paste(pathDir,paste(aname,"intervals.bed", sep="_"),sep="/")
     data.table::fwrite(intervals, bedFile, sep = "\t")
@@ -123,20 +119,15 @@ get_cPos=function(rseq, mode, strand, bisu.Thresh)
   if (strand == "plus")
   {
     cMode = Biostrings::matchPattern(mode, rseq)@ranges@start
-    ###solo strand plus
     if (bisu.Thresh==0)
     {
-      ###se non deve fare il controllo del bisulfito
       cPos=list(as.list(cMode),list(),list(),list())
     }else{
-      ###se deve fare il controllo del bisulfito
       if (mode == "CG")
       {
-        #sulle cpg
         cNotMode <- Biostrings::matchPattern("C", rseq)@ranges@start
         cNotMode= cNotMode[!cNotMode %in% cMode]
       } else {
-        #sulle non cpg
         cNotMode <- Biostrings::matchPattern("C", rseq)@ranges@start
         cg_pos = Biostrings::matchPattern("CG", rseq)@ranges@start
         cNotMode = cNotMode[!cNotMode %in% c(cMode,cg_pos)]
@@ -145,7 +136,6 @@ get_cPos=function(rseq, mode, strand, bisu.Thresh)
     }
 
   } else if (strand == "minus"){
-    ###solo strand minus
     if(mode=="CG")
     {
       cMode=Biostrings::matchPattern(mode, rseq)@ranges@start
@@ -156,17 +146,14 @@ get_cPos=function(rseq, mode, strand, bisu.Thresh)
     }
     if (bisu.Thresh==0)
     {
-      ###se non deve fare il controllo del bisulfito
       cPos=list(list(),list(),as.list(cMode),list())
     }else{
-      ###se deve fare il controllo del bisulfito
       if (mode == "CG")
       {
         #sulle cpg
         cNotMode <- Biostrings::matchPattern("G", rseq)@ranges@start
         cNotMode= cNotMode[!cNotMode %in% cMode]
       } else {
-        #sulle non cpg
         cNotMode <- Biostrings::matchPattern("G", rseq)@ranges@start
         cg_pos = (Biostrings::matchPattern("CG", rseq)@ranges@start)+1
         cNotMode = cNotMode[!cNotMode %in% c(cMode,cg_pos)]
@@ -175,7 +162,6 @@ get_cPos=function(rseq, mode, strand, bisu.Thresh)
     }
 
   }else{
-    ###entrambi gli strand
     cMode_plus = Biostrings::matchPattern(mode, rseq)@ranges@start
     if(mode=="CG")
     {
@@ -185,19 +171,15 @@ get_cPos=function(rseq, mode, strand, bisu.Thresh)
     }
     if (bisu.Thresh==0)
     {
-      ###se non deve fare il controllo del bisulfito
       cPos=list(as.list(cMode_plus),list(),as.list(cMode_minus),list())
     }else{
-      ###se deve fare il controllo del bisulfito
       if (mode == "CG")
       {
-        #sulle cpg
         cNotMode_plus=Biostrings::matchPattern("C",rseq)@ranges@start
         cNotMode_plus= cNotMode_plus[!cNotMode_plus %in% cMode_plus]
         cNotMode_minus=Biostrings::matchPattern("G",rseq)@ranges@start
         cNotMode_minus=cNotMode_minus[!cNotMode_minus %in% as.integer(cMode_minus+1)]
       } else {
-        #sulle non cpg
         cNotMode_plus <- Biostrings::matchPattern("C", rseq)@ranges@start
         cg_pos = Biostrings::matchPattern("CG", rseq)@ranges@start
         cNotMode_plus = cNotMode_plus[!cNotMode_plus %in% c(cMode_plus,cg_pos)]
@@ -252,29 +234,20 @@ get_epiMatrix=function(alignObj, bisu.Thresh, remove.Amb, c.Mode, c.NotMode, str
       data_mode=data_mode[-index,]
     }
   }
-  ######passa al controllo del bisulfito
-  ######se il cutoff e' zero oppure se non e' zero ma non ci sono le c su cui effettuarlo e l'utente ha specificato di consevare le reads
   if (bisu.Thresh==0 | (bisu.Thresh >0 & (length(c.NotMode)==0 & retain.reads==TRUE)))
   {
-    ####se la soglia e' zero
     return(data_mode)
   }else{
-    ####se la soglia non e' zero
     if(length(c.NotMode) == 0 & retain.reads== FALSE)
-      ######se non ci sono c su cui effettuare il controllo e l'utente ha specificato di non conservare le reads
     {
       return(data.frame())
     }else{
-      #####se ci sono le c su cui effettuare il controllo
       data_bisu=extract_matrix(alignObj, c.NotMode, strand, mode= "bisu")
-      ###eventualmente va a rimuovere le reads eliminate con amb thresh.
       if(length(index)>0)
       {
         data_bisu=data_bisu[-index,]
       }
-      ###esegue filtro del bisulfito
       eff=apply(as.matrix(data_bisu), 1, function(x) 1-(sum(x, na.rm = TRUE)/length(x[!is.na(x)])))
-      ########azzera l'efficienza delle reads in cui le non cg sono tutte na
       eff[is.na(eff)]=0
       data_mode=data_mode[eff >=bisu.Thresh,]
       return(data_mode)
@@ -321,7 +294,6 @@ epiallele_analyse=function(align,
   }else{
     out=list("intervals"=data.frame(),"epi"=data.frame(),"log"=data.frame(),"CPos"=data.frame())
   }
-  ##############################restituisce gli allineamenti delle reads per la regione di interesse
   reads <- GenomicAlignments::stackStringsFromGAlignments(align, bin)
   reads <- reads[!duplicated(names(reads))]
   reads_trunk <- reads[Biostrings::vmatchPattern("+", reads)]
@@ -338,8 +310,6 @@ epiallele_analyse=function(align,
     align_minus <- reads[xg == "GA"]
   }
   
-  ############################
-  ####fa il check dello strand e degli allineamenti, per capire su quali richiamare getMatrix
   if (bin@strand@values =="*" & (length(align_minus)==0 & length(align_plus)==0) |
       bin@strand@values =="-" & length(align_minus)==0|
       bin@strand@values =="+" & length(align_plus)==0 |
@@ -347,13 +317,11 @@ epiallele_analyse=function(align,
   {
     out[["log"]]=as.data.frame(bin)
   } else {
-    ##se strand * ed entrambi gli allineamenti sono non vuoti
     if (bin@strand@values == "*" & (length(align_minus)>0 & length(align_plus)>0))
     {
       cPos=get_cPos(rseq, mode,"*",bisu.Thresh)
       data_plus=tidyr::as_tibble(get_epiMatrix(align_plus, bisu.Thresh, remove.Amb, cPos[[1]], cPos[[2]], strand = "plus", retain.reads = retain.reads, mode))
       data_minus=tidyr::as_tibble(get_epiMatrix(align_minus, bisu.Thresh, remove.Amb, cPos[[3]], cPos[[4]], strand = "minus", retain.reads = retain.reads, mode))
-      ###se tutte le reads sono filtrate per ambthresh o bisulfito, scrive bin nel log
       if (dim(data_plus)[1]==0 & dim(data_minus)[1]==0 | dim(data_plus)[1]+dim(data_minus)[1] < threshold)
       {
         out[["log"]]=as.data.frame(bin)
@@ -380,7 +348,6 @@ epiallele_analyse=function(align,
           }
         }
       }
-      ##se lo strand * e solo il positivo e' pieno oppure se lo strand e' +
     } else if (bin@strand@values == "*" & (length(align_minus)==0 & length(align_plus)>0)|
              bin@strand@values == "+")
     {
@@ -394,7 +361,6 @@ epiallele_analyse=function(align,
         out=get_out(data_plus, out, bin@strand@values, bin, get.cPos, myfuns)
       }
     }else {
-      ##se lo strand e' * e solo in negativo e' pieno oppure lo strand e' -
       cPos=get_cPos(rseq, mode, "minus", bisu.Thresh)
       data_minus=tidyr::as_tibble(get_epiMatrix(alignObj = align_minus, 
                                                 bisu.Thresh = bisu.Thresh, remove.Amb = remove.Amb,

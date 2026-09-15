@@ -130,10 +130,6 @@ markReadsWithMutations <- function(
   requireNamespace("IRanges")
   requireNamespace("S4Vectors")
   
-
-  # 1. Read IDs dalla sparse matrix
-
-  
   read_ids <- rownames(sparseMat)
   
   if (is.null(read_ids)) {
@@ -148,10 +144,6 @@ markReadsWithMutations <- function(
     INS = FALSE,
     DEL = FALSE
   )
-  
-
-  # 2. Caricamento file mutazioni
-
   
   if (data.table::is.data.table(mutation_file) | is.data.frame(mutation_file)) {
     mut_dt <- data.table::as.data.table(mutation_file)
@@ -239,12 +231,6 @@ markReadsWithMutations <- function(
     return(as.data.frame(out))
   }
   
-
-  # 4. Coordinate mutazioni
-  # SNP: posizione singola
-  # INS: uso ref_pos come anchor
-  # DEL: uso ref_pos : ref_pos + event_len - 1
-  
   if (!mut_file_1based) {
     mut_dt[, ref_pos := ref_pos + 1L]
   }
@@ -265,8 +251,7 @@ markReadsWithMutations <- function(
   ]
   
 
-  # 5. Eventuale filtro sulle ROI
-  if (!is.null(roi_bed)) {
+   if (!is.null(roi_bed)) {
     
     if (!file.exists(roi_bed)) {
       stop("`roi_bed` does not exist: ", roi_bed)
@@ -293,8 +278,7 @@ markReadsWithMutations <- function(
       )
     ]
     
-    # BED standard: start 0-based, end 1-based esclusivo.
-    # Lo converto in coordinate genomiche 1-based inclusive.
+    
     if (!roi_bed_1based) {
       roi_dt[, start := start + 1L]
     }
@@ -346,7 +330,6 @@ markReadsWithMutations <- function(
   }
   
 
-  # 6. Booleani per read
   mut_by_read <- mut_dt[
     ,
     .(

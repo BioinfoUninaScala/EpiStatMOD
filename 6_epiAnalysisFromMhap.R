@@ -414,10 +414,12 @@ epiAnalysisFromMhap <- function(
   
   message("Analysis completed for ", sample_name, "!")
   
-  list(
+  return(
+   list(
     intervals = intervals,
     epi = epi,
     log = log
+   )
   )
 }
 
@@ -551,7 +553,7 @@ epiallele_analyse_fromMhap <- function(
     )
   }
   
-  out
+  return(out)
 }
 
 
@@ -721,7 +723,7 @@ extractLocalEpiallelesFromMhapBin <- function(
   
   attr(local_epi, "cpg_pos") <- cpg_bin_pos
   
-  local_epi
+  return(local_epi)
 }
 
 
@@ -789,7 +791,7 @@ get_out_mhap <- function(
     out[["log"]] <- data.frame()
   }
   
-  out
+  return(out)
 }
 
 
@@ -851,12 +853,13 @@ getBinCoordinatesForMhap <- function(bin) {
   if (!"end" %in% colnames(bin_df)) {
     stop("`bin` must contain an `end` column.")
   }
-  
-  list(
-    chr = as.character(bin_df[[chr_col]][1]),
-    start = as.integer(bin_df$start[1]),
-    end = as.integer(bin_df$end[1]),
-    coord = bin_df[, c(chr_col, "start", "end"), drop = FALSE]
+  return(
+   list(
+     chr = as.character(bin_df[[chr_col]][1]),
+     start = as.integer(bin_df$start[1]),
+     end = as.integer(bin_df$end[1]),
+     coord = bin_df[, c(chr_col, "start", "end"), drop = FALSE]
+   )
   )
 }
 
@@ -878,7 +881,7 @@ get_cpg_between_mhap_analysis <- function(
     return(integer(0))
   }
   
-  pos_vec[lo:hi]
+  return(pos_vec[lo:hi])
 }
 
 
@@ -939,7 +942,7 @@ normalize_cpg_df_mhap_analysis <- function(cpg_df) {
   
   data.table::setorder(out, chr, pos)
   
-  out
+  return(out)
 }
 
 
@@ -1004,5 +1007,7 @@ makeBalancedChunksMhapAnalysis <- function(
     )
   }
   
-  split(df, df$chunk)
+  return(
+   split(df, df$chunk)
+        )
 }

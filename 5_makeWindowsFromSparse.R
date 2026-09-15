@@ -76,7 +76,6 @@ makeWindowsFromSparse <- function(sparseMat,
     stop("`cov_regs` must be a GRanges object.")
   }
   
-  # ----- 1) Estrai chr e pos dalle colonne -----
   parts <- data.table::tstrsplit(colnames(sparseMat), "_", fixed = TRUE)
   if (length(parts) != 2L) {
     stop("Column names must be of the form 'chr_pos', e.g. 'chr21_5011700'.")
@@ -91,13 +90,11 @@ makeWindowsFromSparse <- function(sparseMat,
   dt <- data.table::data.table(chr = chr_vec, pos = pos_vec)
   data.table::setorder(dt, chr, pos)
   
-  # CpG come GRanges
   cpg_gr <- GenomicRanges::GRanges(
     seqnames = dt$chr,
     ranges   = IRanges::IRanges(start = dt$pos, width = 1L)
   )
   
-  # ----- 2) Costruisci finestre fisse per cromosoma -----
   chr_levels <- unique(dt$chr)
   win_list   <- vector("list", length(chr_levels))
   names(win_list) <- chr_levels
@@ -135,7 +132,6 @@ makeWindowsFromSparse <- function(sparseMat,
   
   all_win <- do.call(c, base::unname(win_list))
   
-  # ----- 3) Filtra per num CpG -----
   cpg_per_win <- GenomicRanges::countOverlaps(all_win, cpg_gr)
   keep <- (cpg_per_win >= min.C) & (cpg_per_win <= max.C)
   
@@ -152,7 +148,6 @@ makeWindowsFromSparse <- function(sparseMat,
     S4Vectors::mcols(all_win_filt)$num_reads <- read_per_win
   }
   
-  # ----- 4) Tieni solo finestre dentro cov_regs -----
   hits <- GenomicRanges::findOverlaps(all_win_filt, cov_regs, type = "within")
   if (length(hits) == 0L) {
     message("No windows fall completely within `cov_regs`.")

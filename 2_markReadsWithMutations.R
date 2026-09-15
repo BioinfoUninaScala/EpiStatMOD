@@ -207,7 +207,6 @@ markReadsWithMutations <- function(
   }
   
 
-  # 3. Filtri opzionali su qualità
   if (!is.null(min_base_qual) && "base_qual" %in% colnames(mut_dt)) {
     mut_dt <- mut_dt[
       !is.na(base_qual) &

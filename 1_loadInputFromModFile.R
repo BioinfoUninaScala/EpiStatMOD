@@ -261,15 +261,6 @@ loadInputFromModFile <- function(
       region_file_1based = region_file_1based,
       nThread = nThread
     )
-    
-    # message("Filtering mmod file records by regions...")
-    # mod_df <- filter_mod_by_regions(
-    #   mod_df = mod_df,
-    #   regions_gr = regions_gr
-    # )
-    # if (nrow(mod_df) == 0L) {
-    #   stop("No mHap records remain after region filtering.")
-    # }
   }
   
   
@@ -369,19 +360,6 @@ loadInputFromModFile <- function(
     }
     
     sparse_matrix <- filter_matrix(mat_base, rm_zero_col = rm_zero_col)
-    
-    # if (!is.null(mut_file)){
-    #   mut_df <- load_mut_calls(
-    #     mut_file = mut_file,
-    #     base_qual_th = base_qual_th,
-    #     base_map_qual_th = base_map_qual_th,
-    #     sel_chr = sel_chr,
-    #     mut_code_map = mut_code_map, 
-    #     nThread = nThread
-    #   )
-    #   
-    #   sparse_matrix <- add_mut_to_sparseMat(sparse_matrix, mut_df)
-    # }
     
   }
   
@@ -882,17 +860,6 @@ load_read_coords <- function(read_coord_bedfile,
   if (nrow(bad_reads) > 0L) {
     warning("Some readIDs map to more than one chromosome. Keeping the first chromosome.")
   }
-  
-  # read_coords <- read_coords[
-  #   ,
-  #   .(
-  #     chr    = chr[1],
-  #     start  = min(start),
-  #     end    = max(end),
-  #     strand = "*"
-  #   ),
-  #   by = readID
-  # ]
   
   if (as_GRanges){
     read_coords <- GenomicRanges::GRanges(
@@ -2185,11 +2152,3 @@ build_read_hap_from_one_read <- function(
     strand = strand_out
   )
 }
-
-
-# mut_file Path to a VCF file containing SNP coordinates for each read.  
-# mut_file_1based Logical. Whether the mutation file already uses
-# 1-based inclusive coordinates. If `FALSE`, regions are interpreted as
-# BED-like 0-based half-open intervals and the start coordinate is converted by
-# adding 1. Default is `FALSE`.
-# mut_code_map Named numeric vector that maps the mutation events reported in the vcf file to integer codes used in the matrix.

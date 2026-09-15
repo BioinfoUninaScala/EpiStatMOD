@@ -29,7 +29,6 @@
 epiStat <- function(sample_list, metadata, colgroups, colsamples,
                     rmUnmeth = FALSE, cores = 1,
                     minGroups = 2, minSampleSize = 2, reduce = FALSE){
-  ## Filtraggio regioni
   list = sample_list %>% map(select, id) %>%
     map(dplyr::distinct, id) %>%
     purrr::map2(., names(.), ~ dplyr::mutate(.x, sample = .y)) %>%
@@ -38,7 +37,6 @@ epiStat <- function(sample_list, metadata, colgroups, colsamples,
     dplyr::left_join(., metadata, by = c("sample" = colsamples)) %>%
     dplyr::group_by(id, .[colgroups]) %>% dplyr::count() %>%
     dplyr::filter(n >= minSampleSize) %>% dplyr::ungroup()
-  ####
   list <- list %>% dplyr::group_by(id) %>% dplyr::mutate(ngroups = dplyr::n_distinct(get(colgroups))) %>% dplyr::filter(ngroups >= minGroups)
 
   ### Take filtered regions

@@ -203,7 +203,7 @@ makeWindowsFromMhap <- function(
     S4Vectors::mcols(final_windows)$num_reads <- num_reads
   }
   
-  final_windows
+  return(final_windows)
 }
 
 #' Count mHap reads overlapping genomic windows
@@ -271,5 +271,5 @@ count_mhap_reads_over_windows <- function(
   out <- numeric(length(windows_gr))
   out[read_dt$win_idx] <- read_dt$num_reads
   
-  out
+  return(out)
 }

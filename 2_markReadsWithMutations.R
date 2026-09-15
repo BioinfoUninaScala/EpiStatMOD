@@ -152,11 +152,6 @@ markReadsWithMutations <- function(
       stop("`mutation_file` does not exist: ", mutation_file)
     }
     
-    # mut_dt <- freadMutationsForSparseReads(
-    #   mutation_file = mutation_file,
-    #   sparseMat = sparseMat
-    # )
-    
     mut_dt <- data.table::fread(mutation_file, nThread = nThread)
   }
   

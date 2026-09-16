@@ -13,7 +13,3 @@
  Given a genomic locus containing n Cs in the CpX context, all the possible combinations of the methylation states of these Cs observed at the single reads level are defined as epialleles. 
  Considering each sequenced read as coming from a single cell, this type of analysis can provide additional insights about the epigenetic cellular heterogeneity characterizing a sample. 
  EpiStatMOD is implemented with the ability to extract the epialleles information from genomic units that can be easily designed by the user modifying several parameters. Beyond the profiling of the epialleles composition for each analysed sample, the package is then provided with dedicated statistical functions aimed to compare epialleles compositions among different biological conditions. Finally, epialleles extraction functions are designed to easily perform strand-specific and non-CG methylation analysis. 
-
----------
-
-Detailed documentation can be found at [https://bioinfouninascala.github.io/epistats](https://github.com/BioinfoUninaScala/epistats).
